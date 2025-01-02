@@ -1,5 +1,6 @@
 package com.example.radiobuttonjetpackcompose
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,8 +20,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +37,22 @@ import androidx.core.content.ContextCompat
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        fun changeColor(
+            context: Context,
+            optionId: Int
+        ): Color = Color(
+            ContextCompat.getColor(
+                context, when (optionId) {
+                    R.drawable.blue -> R.color.blue
+                    R.drawable.red -> R.color.red
+                    R.drawable.green -> R.color.green
+                    R.drawable.white -> R.color.white
+                    R.drawable.brown -> R.color.brown
+                    else -> R.color.purple_200
+                }
+            )
+        )
+
         setContent {
             val context = LocalContext.current
             val cars = listOf(
@@ -44,7 +62,7 @@ class MainActivity : ComponentActivity() {
                 R.drawable.white,
                 R.drawable.brown
             )
-            val (selectedOptionId, onOptionSelected) = remember { mutableStateOf(cars[0]) }
+            val (selectedOptionId, onOptionSelected) = rememberSaveable { mutableIntStateOf(cars[0]) }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -74,18 +92,7 @@ class MainActivity : ComponentActivity() {
                                 .padding(8.dp)
                                 .size(32.dp)
                                 .background(
-                                    color = Color(
-                                        ContextCompat.getColor(
-                                            context, when (optionId) {
-                                                R.drawable.blue -> R.color.blue
-                                                R.drawable.red -> R.color.red
-                                                R.drawable.green -> R.color.green
-                                                R.drawable.white -> R.color.white
-                                                R.drawable.brown -> R.color.brown
-                                                else -> R.color.purple_200
-                                            }
-                                        )
-                                    ),
+                                    color = changeColor(context, optionId),
                                     shape = CircleShape
                                 )
                                 .border(width = 2.dp, shape = CircleShape, color = Color.Black),
@@ -95,30 +102,8 @@ class MainActivity : ComponentActivity() {
                                 selected = (optionId == selectedOptionId),
                                 onClick = { onOptionSelected(optionId) },
                                 colors = RadioButtonDefaults.colors(
-                                    selectedColor = Color(
-                                        ContextCompat.getColor(
-                                            context, when (optionId) {
-                                                R.drawable.blue -> R.color.blue
-                                                R.drawable.red -> R.color.red
-                                                R.drawable.green -> R.color.green
-                                                R.drawable.white -> R.color.white
-                                                R.drawable.brown -> R.color.brown
-                                                else -> R.color.purple_200
-                                            }
-                                        )
-                                    ),
-                                    unselectedColor = Color(
-                                        ContextCompat.getColor(
-                                            context, when (optionId) {
-                                                R.drawable.blue -> R.color.blue
-                                                R.drawable.red -> R.color.red
-                                                R.drawable.green -> R.color.green
-                                                R.drawable.white -> R.color.white
-                                                R.drawable.brown -> R.color.brown
-                                                else -> R.color.purple_200
-                                            }
-                                        )
-                                    )
+                                    selectedColor = changeColor(context, optionId),
+                                    unselectedColor = changeColor(context, optionId)
                                 )
                             )
                         }
@@ -131,7 +116,11 @@ class MainActivity : ComponentActivity() {
                     "Luxe",
                     "Style"
                 )
-                val (selectedOptionIdTwo, onOptionSelectedTwo) = remember { mutableStateOf(equipment[0]) }
+                val (selectedOptionIdTwo, onOptionSelectedTwo) = rememberSaveable {
+                    mutableStateOf(
+                        equipment[0]
+                    )
+                }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
